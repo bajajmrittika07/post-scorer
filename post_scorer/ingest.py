@@ -2,7 +2,7 @@
 
 One row per post. Columns:
   platform, row_id, created_utc, created_et, year, era, text,
-  is_repost, is_reply, is_fan_quote, is_deleted, has_text, has_link, link_domain, format,
+  is_repost, is_reply, is_fan_quote, is_deleted, is_flagged, has_text, has_link, link_domain, format,
   likes, reposts, replies, eng (likes + reposts, comparable across platforms),
   eng_full (platform definition: Twitter likes+retweets; Truth Social likes+reposts+replies)
 """
@@ -61,6 +61,7 @@ def load_twitter(path: str) -> pd.DataFrame:
     df["is_fan_quote"] = df["text"].str.match(r'^"?@\w+:')     # old-style manual quote of a fan ("@user: ...")
     df["is_reply"] = df["text"].str.match(r"^@\w") & ~df["is_fan_quote"]  # starts with @handle = reply/mention-led
     df["is_deleted"] = raw["isDeleted"] == "t"
+    df["is_flagged"] = raw["isFlagged"] == "t"   # Twitter switched off likes/retweets on some labelled tweets in 2020
     df["has_text"] = df["text"].str.strip() != ""
     df["link_domain"] = _domain(df["text"])
     df["has_link"] = df["link_domain"].notna()
@@ -89,6 +90,7 @@ def load_truth(path: str) -> pd.DataFrame:
     df["is_reply"] = df["text"].str.match(r"^@\w+\s*$")      # bare @handle posts
     df["is_fan_quote"] = False
     df["is_deleted"] = False
+    df["is_flagged"] = False
     df["has_text"] = df["text"].str.strip() != ""
     df["link_domain"] = _domain(df["text"])
     df["has_link"] = df["link_domain"].notna()

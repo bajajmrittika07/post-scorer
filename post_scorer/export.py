@@ -62,12 +62,17 @@ def build(df: pd.DataFrame) -> dict:
         "truth_posts": int((df.platform == "Truth Social").sum()),
         "scored_posts": int(df["uplift"].notna().sum()),
         "first_post": str(df["created_utc"].min().date()), "last_post": str(df["created_utc"].max().date()),
+        "original_posts_in_window": int((df["is_original"] & ~early).sum()),
+        "excluded": {f"{p}|{r}": int(((df["platform"] == p) & ~early & (df["exclude"] == r)).sum())
+                     for p in ["Twitter", "Truth Social"] for r in ["deleted", "flagged", "tiny"]},
+        "scored_twitter": int(((df.platform == "Twitter") & df["uplift"].notna()).sum()),
+        "scored_truth": int(((df.platform == "Truth Social") & df["uplift"].notna()).sum()),
     }
 
     # monthly timeline
     m = full.assign(month=df["created_utc"].dt.strftime("%Y-%m"))
     tl = m.groupby(["platform", "month"]).agg(posts=("row_id", "size"), reposts=("is_repost", "sum")).reset_index()
-    eng = m[m["is_original"]].groupby(["platform", "month"])["eng"].median().rename("median_eng").reset_index()
+    eng = m[m["is_original"] & (m["exclude"] == "")].groupby(["platform", "month"])["eng"].median().rename("median_eng").reset_index()
     tl = tl.merge(eng, on=["platform", "month"], how="left")
     out["timeline"] = [{k: (_r(v, 0) if isinstance(v, float) else v) for k, v in r.items()} for r in tl.to_dict("records")]
 
@@ -81,8 +86,8 @@ def build(df: pd.DataFrame) -> dict:
         best_hour = best_hour[sc.groupby("hour_et").size() >= 50]
         rows.append({
             "era": e, "posts": int(len(g)), "posts_per_day": _r(len(g) / days, 1),
-            "repost_share": _r(g["is_repost"].mean()), "median_eng": _r(o["eng"].median(), 0),
-            "median_likes": _r(o["likes"].median(), 0),
+            "repost_share": _r(g["is_repost"].mean()), "median_eng": _r(o.loc[o["exclude"] == "", "eng"].median(), 0),
+            "median_likes": _r(o.loc[o["exclude"] == "", "likes"].median(), 0),
             "text_only_share": _r((o["format"] == "Text only").mean()), "link_share": _r(o["has_link"].mean()),
             "no_text_share": _r((~o["has_text"]).mean()),
             "caps_share": _r(o["heavy_caps"].mean()), "nickname_share": _r(o["has_nickname"].mean()),
@@ -97,6 +102,7 @@ def build(df: pd.DataFrame) -> dict:
     ts25 = full[(full.platform == "Truth Social") & (full.created_utc >= pd.Timestamp("2025-01-20", tz="UTC"))]
     ts_months = (ts25.created_utc.max() - ts25.created_utc.min()).days / 30.44
     out["volume_compare"] = {"trump_jan_may_2020_per_month": _r(len(tw20) / 5, 0),
+                             "trump_jan_may_2020_own_per_month": _r(tw20["is_original"].sum() / 5, 0),
                              "trump_ts_2025_26_per_month": _r(len(ts25) / ts_months, 0)}
 
     # format uplift
@@ -138,7 +144,7 @@ def build(df: pd.DataFrame) -> dict:
     # regression
     reg = pd.concat([fit(df, "Truth Social"), fit(df, "Twitter", min_year="2015-06-16")])
     reg[["group", "label"]] = reg["term"].apply(lambda t: pd.Series(_label(t)))
-    out["regression"] = [{k: (_r(v) if isinstance(v, float) else v) for k, v in r.items()} for r in reg.to_dict("records")]
+    out["regression"] = [{k: (_r(v, 4) if isinstance(v, float) else v) for k, v in r.items()} for r in reg.to_dict("records")]
 
     # flags
     flags = []
