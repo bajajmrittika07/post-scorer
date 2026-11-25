@@ -18,10 +18,11 @@ def fit(df: pd.DataFrame, platform: str, min_year: str | None = None) -> pd.Data
     d["y"] = np.log2(d["uplift"])
     d["fmt"] = d["format"].str.replace(r"[^A-Za-z]", "_", regex=True)
     d["long"] = d["n_words"] > 50
+    d["log2_posts_that_day"] = np.log2(d["posts_that_day"])   # effect per doubling of that day's post count
     topic_cols = [c for c in d if c.startswith("topic_")]
     for c in topic_cols + STYLE:
         d[c] = d[c].astype(int)
-    f = "y ~ C(fmt, Treatment('Text_only')) + " + " + ".join(topic_cols + STYLE)
+    f = "y ~ C(fmt, Treatment('Text_only')) + " + " + ".join(topic_cols + STYLE) + " + log2_posts_that_day"
     if platform == "Truth Social":
         d["sent"] = d["src_sentiment_label"].fillna("neutral")
         d["sharp_language"] = (d["src_toxicity_score"] >= d["src_toxicity_score"].quantile(0.8)).astype(int)

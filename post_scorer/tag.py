@@ -74,6 +74,8 @@ def add_timing(df: pd.DataFrame) -> pd.DataFrame:
     df["hour_et"] = et.dt.hour
     df["weekday"] = et.dt.day_name()
     df["late_night"] = df["hour_et"].between(0, 5)       # midnight–6am Eastern
+    # how busy his feed was: all his posts (reposts included) on the same US Eastern day, same platform
+    df["posts_that_day"] = df.groupby(["platform", et.dt.date])["row_id"].transform("size")
     return df
 
 

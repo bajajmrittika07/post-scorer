@@ -20,7 +20,7 @@ TERM_LABELS = {
     "heavy_caps": "CAPITALS (¼ of words or more)", "has_exclamation": "Exclamation mark",
     "has_nickname": "Nickname for an opponent", "has_question": "Asks a question",
     "has_call_to_action": "Call to action (vote, watch, join…)", "late_night": "Posted midnight–6am ET",
-    "long": "Long post (51+ words)", "sharp_language": "Sharpest-language fifth of posts",
+    "long": "Long post (51+ words)", "log2_posts_that_day": "Posts that day (per doubling)", "sharp_language": "Sharpest-language fifth of posts",
     "C(sent, Treatment('neutral'))[T.negative]": "Negative tone (vs neutral)",
     "C(sent, Treatment('neutral'))[T.positive]": "Positive tone (vs neutral)",
 }
