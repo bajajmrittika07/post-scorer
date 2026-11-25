@@ -13,7 +13,7 @@ def main():
     ap.add_argument("csv")
     ap.add_argument("--truth-col", default="your_label")
     ap.add_argument("--pred-col", default="rule_label")
-    ap.add_argument("--also", default="claude_label", help="second annotator column to compare with, if present")
+    ap.add_argument("--also", default="ai_label", help="second annotator column to compare with, if present")
     a = ap.parse_args()
     d = pd.read_csv(a.csv)
     d = d[d[a.truth_col].fillna("").str.strip() != ""]

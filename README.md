@@ -56,18 +56,18 @@ Tested honestly, against posts it was not built from:
 
 The correct topic is among the topics the rules flag 66% of the time. Hardest cases: bare news links and quoted headlines on Truth Social.
 
-Independent labels came from Claude (Anthropic) acting as a second annotator, blind to the rules' output.
+Independent labels came from an AI assistant acting as a second annotator, blind to the rules' output.
 
-**Blind hand check, round 1.** Mrittika labelled 89 of the held-out posts herself, without seeing either label: all 69 where the rules and Claude disagreed, plus 20 where they agreed. Weighted back to the full 150, the rules match her labels about 51% of the time and Claude about 58% (estimates). The rules' main weakness is coverage: in 22 of their 58 misses, no keyword matched at all.
+**Blind hand check, round 1.** Mrittika labelled 89 of the held-out posts herself, without seeing either label: all 69 where the rules and the AI disagreed, plus 20 where they agreed. Weighted back to the full 150, the rules match her labels about 51% of the time and the AI labels about 58% (estimates). The rules' main weakness is coverage: in 22 of their 58 misses, no keyword matched at all.
 
 **Blind hand check, round 2** (`hand_check.csv`): 100 new random scored posts, 50 per platform, labelled by Mrittika without seeing either label. Because the sample is random, no weighting is needed.
 
-| | Rules | Claude |
+| | Rules | AI labels |
 |---|---|---|
 | Agreement with hand labels | **50%** (kappa 0.45) | **80%** (kappa 0.78) |
 | Truth Social / Twitter | 54% / 46% | 76% / 84% |
 
-The hand-labelled topic is among the topics the rules flag 66% of the time. In 16 of the rules' 50 misses no keyword matched at all. Per topic: **Endorsements** rule precision 4 of 5 posts, recall 4 of 5. **Patriotism, faith & holidays**: the rules gave no post this label and only 2 posts were hand-labelled with it, too few to estimate precision. Claude's most common miss was calling thanks and self-promotion posts "Media" (5).
+The hand-labelled topic is among the topics the rules flag 66% of the time. In 16 of the rules' 50 misses no keyword matched at all. Per topic: **Endorsements** rule precision 4 of 5 posts, recall 4 of 5. **Patriotism, faith & holidays**: the rules gave no post this label and only 2 posts were hand-labelled with it, too few to estimate precision. The AI's most common miss was calling thanks and self-promotion posts "Media" (5).
 
 **Cross-check against the Truth Social export's own topic labels.** The export carries its own `topic` field, made by an undocumented method. Mapping our topics to its labels where an equivalent exists, the two agree on **68%** of 11,860 scored text posts:
 
