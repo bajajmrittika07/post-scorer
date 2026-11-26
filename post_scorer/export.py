@@ -188,10 +188,14 @@ def explorer(df: pd.DataFrame, per_era_top: int = 120, per_era_bottom: int = 40,
     } for r in k.sort_values("uplift", ascending=False).itertuples()]
 
 
-def write(df: pd.DataFrame, out_dir: str) -> None:
+def write(df: pd.DataFrame, out_dir: str, peers: str | None = None) -> None:
     import os
     os.makedirs(out_dir, exist_ok=True)
+    out = build(df)
+    if peers:
+        from .peers import export_peers
+        out["peers"] = export_peers(peers)
     with open(os.path.join(out_dir, "report.json"), "w") as f:
-        json.dump(build(df), f, ensure_ascii=False, separators=(",", ":"))
+        json.dump(out, f, ensure_ascii=False, separators=(",", ":"))
     with open(os.path.join(out_dir, "explorer.json"), "w") as f:
         json.dump(explorer(df), f, ensure_ascii=False, separators=(",", ":"))

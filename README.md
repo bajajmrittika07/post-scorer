@@ -26,6 +26,8 @@ Trump's audience grew from a few thousand followers in 2009 to tens of millions.
 pip install -r requirements.txt
 python -m post_scorer.cli --twitter trump_tweets.csv --truth trump_posts_full.csv --out ../report/data
 python -m post_scorer.validate hand_check.csv --truth-col your_label
+# optional: add a hand-collected follower snapshot of other politicians (CSV kept private)
+python -m post_scorer.cli --twitter trump_tweets.csv --truth trump_posts_full.csv --peers us_politicians_2026.csv --out ../report/data
 ```
 
 Runtime about one minute on a laptop.
@@ -36,13 +38,14 @@ Runtime about one minute on a laptop.
 python -m pytest
 ```
 
-15 unit tests run in about two seconds on small made-up data (the real exports are never needed). They check:
+17 unit tests run in about two seconds on small made-up data (the real exports are never needed). They check:
 
 - **Ingest**: reposts, fan quotes vs replies, deleted and flagged tweets, format from the link domain, encoding repair, US Eastern time and eras.
 - **Tag**: topic rules and their priority order (including the "President of the United States" fix), style features, and posts counted per US Eastern day and platform.
 - **Score**: the ±14-day median baseline and uplift; deleted, flagged and near-zero posts excluded and kept out of the baseline; reposts never scored.
 - **Model**: the regression recovers effects planted in made-up data (a link at 0.7×, 0.85× per doubling of posts that day, no effect where none was planted).
 - **Export**: ordinary users' handles are masked before publishing.
+- **Peers**: follower counts typed as shown on profiles ("111.7M", "44.1k") are parsed correctly; blanks (no account), TikTok and handles are left out of the export.
 
 ## How well does the topic tagger work?
 
